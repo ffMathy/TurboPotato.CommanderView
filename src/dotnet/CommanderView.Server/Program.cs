@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,7 @@ namespace CommanderView.Server
 
         public static void Main(string[] args)
         {
+            Console.Title = "Server";
             CreateHostBuilder(args).Build().Run();
         }
 

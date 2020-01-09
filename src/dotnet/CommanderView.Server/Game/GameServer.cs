@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Text;
 using NetCoreServer;
 
@@ -51,24 +49,21 @@ namespace CommanderView.Server.Game
         {
             var currentGameServerSession = _gameServerSessionsById[session.Id];
 
-            //send a message to all other clients that a player has joined, and attach the player's initial position.
-            MulticastLogged(CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(currentGameServerSession));
-
             //send map tiles to the connected client.
-            currentGameServerSession.SendLogged(CommandStringHelper.GetUpdateMapCommandStringFromTileMatrix(MapTileMatrix));
+            currentGameServerSession.SendNullTerminated(CommandStringHelper.GetUpdateMapCommandStringFromTileMatrix(MapTileMatrix));
 
-            //send other already joined player positions to the connected client.
-            foreach(var otherGameServerSession in _gameServerSessionsById.Values)
-            {
-                currentGameServerSession.SendLogged(CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(otherGameServerSession));
-            }
+            //send the client's ID to the client.
+            currentGameServerSession.SendNullTerminated(CommandStringHelper.GetClientIdCommandStringFromClientId(session.Id));
+
+            //send a message to all other clients that a player has joined, and attach the player's initial position.
+            MulticastNullTerminated(CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(currentGameServerSession));
         }
 
         protected override void OnDisconnected(TcpSession session)
         {
             _gameServerSessionsById.Remove(session.Id);
 
-            MulticastLogged($"PLAYERLEFT:{session.Id}");
+            MulticastNullTerminated($"PLAYERLEFT:{session.Id}");
         }
 
         public Player[] GetPlayers()
@@ -86,18 +81,14 @@ namespace CommanderView.Server.Game
         {
             MapTileMatrix = tileMatrix;
 
-            var updateMapCommandString = CommandStringHelper.GetUpdateMapCommandStringFromTileMatrix(tileMatrix);
-            Console.WriteLine("Sending command to all clients: " + updateMapCommandString);
-
-            MulticastLogged(updateMapCommandString);
+            //broadcast the new map to all clients.
+            MulticastNullTerminated(CommandStringHelper.GetUpdateMapCommandStringFromTileMatrix(tileMatrix));
         }
 
-        public void MulticastLogged(string text)
+        public void MulticastNullTerminated(string text)
         {
             Console.WriteLine($"Sending to all clients: {text}");
-            Console.WriteLine();
-
-            Multicast(text);
+            Multicast(CommandStringHelper.InsertEndOfCommandMarker(text));
         }
 
         private static MapTileType[][] GenerateInitialMapTileMatrix()
@@ -136,40 +127,49 @@ namespace CommanderView.Server.Game
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             var text = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            Console.WriteLine($"{Id} to server: {text}");
+            var commands = CommandStringHelper.SplitReceivedTextByEndOfCommandMarkers(text);
+            foreach (var command in commands)
+            {
+                Console.WriteLine($"Received from client {Id}: {command}");
 
-            HandleReceivedPositionUpdateCommand(text);
+                var split = command.Split(':');
+
+                var commandName = split[0];
+                var commandArguments = split?.Length > 1 ? 
+                    split[1].Split(';') : 
+                    Array.Empty<string>();
+
+                HandleReceivedCommand(commandName, commandArguments);
+            }
         }
 
-        public void SendLogged(string text)
+        public void SendNullTerminated(string text)
         {
             Console.WriteLine($"Sending to client {Id}: {text}");
-            Console.WriteLine();
-
-            Send(text);
+            Send(CommandStringHelper.InsertEndOfCommandMarker(text));
         }
 
-        private void HandleReceivedPositionUpdateCommand(string text)
+        private void HandleReceivedCommand(string commandName, string[] commandArguments)
         {
-            const string positionUpdateCommand = "POSITION-UPDATE:";
-
-            if (!text.StartsWith(positionUpdateCommand)) 
-                return;
-
-            //parse the position X and Y coordinates from the command.
-            var commandParameterText = text.Substring(positionUpdateCommand.Length);
-            var coordinateSplit = commandParameterText.Split(";");
-
-            var playerPosition = new PlayerPosition()
+            switch (commandName)
             {
-                X = double.Parse(coordinateSplit[0], Program.UnitedStatesCulture),
-                Y = double.Parse(coordinateSplit[1], Program.UnitedStatesCulture)
-            };
+                case "POSITIONUPDATE":
+                {
+                    //parse the position X and Y coordinates from the command.
+                    var playerPosition = new PlayerPosition()
+                    {
+                        X = double.Parse(commandArguments[0], Program.UnitedStatesCulture),
+                        Y = double.Parse(commandArguments[1], Program.UnitedStatesCulture)
+                    };
 
-            PlayerPosition = playerPosition;
+                    PlayerPosition = playerPosition;
 
-            //broadcast a player update to all the server's clients.
-            _server.MulticastLogged(CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(this));
+                    //broadcast a player update to all the server's clients.
+                    _server.MulticastNullTerminated(
+                        CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(this));
+                    break;
+                }
+            }
         }
     }
 }
