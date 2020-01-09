@@ -29,7 +29,7 @@
                 renderMap();
                 renderPlayers();
 
-                setTimeout(refreshMap, 3000);
+                setTimeout(() => refreshMap(), 100);
             });
         }
 
@@ -62,7 +62,7 @@
                         .data("row", row)
                         .data("column", column)
                         .data("tile-type", tileType)
-                        .click(onCellClicked)
+                        .mousedown(onCellClicked)
                         .appendTo(rowDom);
                 }
 
@@ -81,25 +81,16 @@
         }
 
         function renderPlayers() {
-            $("<div/>")
+            players.forEach(p => $("<div/>")
                 .css({
                     position: "absolute",
-                    left: 0,
-                    top: 0,
-                    width: getMapWidth(),
-                    height: getMapHeight()
+                    left: p.position.x * TILE_SIZE + TILE_SIZE / 2 - PLAYER_SIZE / 2,
+                    top: p.position.y * TILE_SIZE + TILE_SIZE / 2 - PLAYER_SIZE / 2,
+                    width: PLAYER_SIZE,
+                    height: PLAYER_SIZE,
+                    backgroundColor: "#" + p.id.substr(0, 6)
                 })
-                .append(players
-                    .map(p => $("<div/>")
-                        .css({
-                            position: "absolute",
-                            left: p.position.x * TILE_SIZE + TILE_SIZE / 2 - PLAYER_SIZE / 2,
-                            top: p.position.y * TILE_SIZE + TILE_SIZE / 2 - PLAYER_SIZE / 2,
-                            width: PLAYER_SIZE,
-                            height: PLAYER_SIZE,
-                            backgroundColor: "#" + p.id.substr(0, 6)
-                        })))
-                .appendTo(document.body);
+                .appendTo(document.body));
         }
 
         function getCellColorFromWallType(tileType) {
