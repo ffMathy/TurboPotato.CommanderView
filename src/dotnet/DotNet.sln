@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommanderView.Server", "CommanderView.Server\CommanderView.Server.csproj", "{7D7EA122-DB64-4B02-8681-CD53F650EF7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{7D7EA122-DB64-4B02-8681-CD53F650EF7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E3670341-5A06-48B0-B77F-9B39F3D2D5F2}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommanderView.Client", "CommanderView.Client\CommanderView.Client.csproj", "{8400AF33-B66D-4BAF-A6CF-E6BEF3C4FE1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleGameClient", "SimpleGameClient\SimpleGameClient.csproj", "{8400AF33-B66D-4BAF-A6CF-E6BEF3C4FE1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

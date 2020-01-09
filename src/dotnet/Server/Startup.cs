@@ -1,11 +1,12 @@
-using CommanderView.Server.Game;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Server.Game;
 
-namespace CommanderView.Server
+namespace Server
 {
     public class Startup
     {
@@ -30,7 +31,21 @@ namespace CommanderView.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CORS", builder => builder
+                    .WithOrigins(
+                        "http://localhost:5000",
+                        "http://localhost:14568")
+                    .WithHeaders(
+                        "Content-Type")
+                    .WithMethods(
+                        "POST",
+                        "GET",
+                        "PUT",
+                        "PATCH"));
+            });
 
             RegisterGameRelatedDependencies(services);
         }
@@ -44,6 +59,8 @@ namespace CommanderView.Server
             }
 
             app.UseRouting();
+
+            app.UseCors("CORS");
 
             app.UseAuthorization();
 

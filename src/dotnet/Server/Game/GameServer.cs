@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NetCoreServer;
 
-namespace CommanderView.Server.Game
+namespace Server.Game
 {
     public enum MapTileType
     {

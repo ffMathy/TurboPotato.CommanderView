@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace CommanderView.Server.Game
+namespace Server.Game
 {
     public class CommandStringHelper
     {

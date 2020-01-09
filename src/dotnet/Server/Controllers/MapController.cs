@@ -1,7 +1,7 @@
-﻿using CommanderView.Server.Game;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Server.Game;
 
-namespace CommanderView.Server.Controllers
+namespace Server.Controllers
 {
     public class MapResponse
     {
@@ -26,19 +26,20 @@ namespace CommanderView.Server.Controllers
         }
 
         [HttpGet("")]
-        public MapResponse GetMap()
+        public IActionResult GetMap()
         {
-            return new MapResponse()
+            return Ok(new MapResponse()
             {
                 TileMatrix = _gameServer.MapTileMatrix,
                 Players = _gameServer.GetPlayers()
-            };
+            });
         }
 
         [HttpPost("")]
-        public void UpdateMap(MapUpdateRequest request)
+        public IActionResult UpdateMap([FromBody] MapUpdateRequest request)
         {
             _gameServer.SetMapTileMatrix(request.TileMatrix);
+            return NoContent();
         }
     }
 }

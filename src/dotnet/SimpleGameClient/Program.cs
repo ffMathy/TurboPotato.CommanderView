@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NetCoreServer;
 
-namespace CommanderView.Client
+namespace SimpleGameClient
 {
     class Program
     {

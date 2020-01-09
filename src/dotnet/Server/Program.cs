@@ -3,7 +3,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace CommanderView.Server
+namespace Server
 {
     public class Program
     {

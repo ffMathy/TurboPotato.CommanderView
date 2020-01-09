@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CommanderView.Server.Game;
 using Microsoft.Extensions.Hosting;
+using Server.Game;
 
-namespace CommanderView.Server
+namespace Server
 {
     public class GameServerHostedService : IHostedService
     {
