@@ -49,21 +49,18 @@ namespace Server.Game
         {
             var currentGameServerSession = _gameServerSessionsById[session.Id];
 
-            //send map tiles to the connected client.
-            currentGameServerSession.SendNullTerminated(CommandStringHelper.GetUpdateMapCommandStringFromTileMatrix(MapTileMatrix));
+            //TODO: somehow send map tiles to the connected client.
 
-            //send the client's ID to the client.
-            currentGameServerSession.SendNullTerminated(CommandStringHelper.GetClientIdCommandStringFromClientId(session.Id));
+            //TODO: somehow send the client's ID (currentGameServerSession.Id) to the client, so he knows who he is.
 
-            //send a message to all other clients that a player has joined, and attach the player's initial position.
-            MulticastNullTerminated(CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(currentGameServerSession));
+            //TODO: somehow send a message to all other clients that a player has joined, and attach the player's initial position.
         }
 
         protected override void OnDisconnected(TcpSession session)
         {
             _gameServerSessionsById.Remove(session.Id);
 
-            MulticastNullTerminated($"PLAYERLEFT:{session.Id}");
+            //TODO: send a message to all players that the player with the ID session.Id has disconnected.
         }
 
         public Player[] GetPlayers()
@@ -75,20 +72,6 @@ namespace Server.Game
                     Position = x.PlayerPosition
                 })
                 .ToArray();
-        }
-
-        public void SetMapTileMatrix(MapTileType[][] tileMatrix)
-        {
-            MapTileMatrix = tileMatrix;
-
-            //broadcast the new map to all clients.
-            MulticastNullTerminated(CommandStringHelper.GetUpdateMapCommandStringFromTileMatrix(tileMatrix));
-        }
-
-        public void MulticastNullTerminated(string text)
-        {
-            Console.WriteLine($"Sending to all clients: {text}");
-            Multicast(CommandStringHelper.InsertEndOfCommandMarker(text));
         }
 
         private static MapTileType[][] GenerateInitialMapTileMatrix()
@@ -127,49 +110,8 @@ namespace Server.Game
         protected override void OnReceived(byte[] buffer, long offset, long size)
         {
             var text = Encoding.UTF8.GetString(buffer, (int)offset, (int)size);
-            var commands = CommandStringHelper.SplitReceivedTextByEndOfCommandMarkers(text);
-            foreach (var command in commands)
-            {
-                Console.WriteLine($"Received from client {Id}: {command}");
 
-                var split = command.Split(':');
-
-                var commandName = split[0];
-                var commandArguments = split?.Length > 1 ? 
-                    split[1].Split(';') : 
-                    Array.Empty<string>();
-
-                HandleReceivedCommand(commandName, commandArguments);
-            }
-        }
-
-        public void SendNullTerminated(string text)
-        {
-            Console.WriteLine($"Sending to client {Id}: {text}");
-            Send(CommandStringHelper.InsertEndOfCommandMarker(text));
-        }
-
-        private void HandleReceivedCommand(string commandName, string[] commandArguments)
-        {
-            switch (commandName)
-            {
-                case "POSITIONUPDATE":
-                {
-                    //parse the position X and Y coordinates from the command.
-                    var playerPosition = new PlayerPosition()
-                    {
-                        X = double.Parse(commandArguments[0], Program.UnitedStatesCulture),
-                        Y = double.Parse(commandArguments[1], Program.UnitedStatesCulture)
-                    };
-
-                    PlayerPosition = playerPosition;
-
-                    //broadcast a player update to all the server's clients.
-                    _server.MulticastNullTerminated(
-                        CommandStringHelper.GetPlayerUpdateCommandStringFromGameServerSession(this));
-                    break;
-                }
-            }
+            //TODO: handle client position updates, and broadcast the position to all other clients.
         }
     }
 }
