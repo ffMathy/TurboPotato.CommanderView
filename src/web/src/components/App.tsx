@@ -45,7 +45,6 @@ const Player = (props: { id?: string, position: Position }) => {
     const left = (position.x - Math.floor(position.x)) * 10;
     const top = (position.y - Math.floor(position.y)) * 10;
     const color = getColor(props.id);
-    console.log(color);
     return <div className="player" style={{ backgroundColor: color, position: "absolute", left: left + "%", top: top + "%" }}></div>
 }
 
@@ -53,6 +52,7 @@ export default class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
         this.fetchData = this.fetchData.bind(this);
+        this.toggleCell = this.toggleCell.bind(this);
         this.state = { players: [], tileMatrix: [] };
     }
     render() {
@@ -62,8 +62,8 @@ export default class App extends React.Component<AppProps, AppState> {
         const matrix = rows.map((row, rowIndex) => {
             const columnTds = row.map((column, columnIndex) => {
                 const className = ClassNames[column];
-                const ourPlayers = players.filter(player => player.cellPosition.x === rowIndex && player.cellPosition.y === columnIndex);
-                return < td className={`column ${className}`} >
+                const ourPlayers = players.filter(player => player.cellPosition.x === columnIndex && player.cellPosition.y === rowIndex);
+                return < td className={`column ${className}`} onClick={() => this.toggleCell(rowIndex, columnIndex)}>
                     {ourPlayers.map(player => <Player id={player.id} position={player.position} />)}
                 </ td>;
             })
@@ -74,8 +74,23 @@ export default class App extends React.Component<AppProps, AppState> {
     }
 
 
+    toggleCell(rowIndex: number, columnIndex: number) {
+        const body = this.state.tileMatrix;
+        body[rowIndex][columnIndex] = body[rowIndex][columnIndex] == TileType.Empty ? TileType.Wall : TileType.Empty;
+        fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body:
+                JSON.stringify({ tileMatrix: body })
+
+        });
+    }
+
     componentDidMount() {
         setInterval(this.fetchData, 100);
+        // this.fetchData();
     }
 
     fetchData() {
