@@ -10,9 +10,6 @@
         const TILE_EMPTY_SPACE = 0;
         const TILE_SOLID_WALL = 1;
 
-        let tileMatrix;
-        let players;
-
         $(onLoaded);
 
         function onLoaded() {
@@ -21,11 +18,8 @@
 
         function refreshMap() {
             $.get("http://localhost:5000/api/map", data => {
-                tileMatrix = data.tileMatrix;
-                players = data.players;
-
-                $(document.body).empty();
-
+                //TODO
+                
                 renderMap();
                 renderPlayers();
 
@@ -34,105 +28,16 @@
         }
 
         function renderMap() {
-            let tableDom = $('<table/>')
-                .prop({
-                    cellspacing: 0,
-                    cellpadding: 0
-                })
-                .css({
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    width: getMapWidth(),
-                    height: getMapHeight(),
-                });
-            for (let row = 0; row < tileMatrix.length; row++) {
-                let rowDom = $('<tr/>');
-
-                for (let column = 0; column < tileMatrix[row].length; column++) {
-                    let tileType = tileMatrix[row][column];
-
-                    $('<td/>')
-                        .css({
-                            width: TILE_SIZE - 2,
-                            height: TILE_SIZE - 2,
-                            backgroundColor: getCellColorFromWallType(tileType),
-                            border: "1px solid white"
-                        })
-                        .data("row", row)
-                        .data("column", column)
-                        .data("tile-type", tileType)
-                        .mousedown(onCellClicked)
-                        .appendTo(rowDom);
-                }
-
-                $(rowDom).appendTo(tableDom);
-            }
-
-            $(tableDom).appendTo(document.body);
-        }
-
-        function getMapWidth() {
-            return TILE_SIZE * tileMatrix[0].length;
-        }
-
-        function getMapHeight() {
-            return TILE_SIZE * tileMatrix.length;
+            //TODO
         }
 
         function renderPlayers() {
-            players.forEach(p => $("<div/>")
-                .css({
-                    position: "absolute",
-                    left: p.position.x * TILE_SIZE + TILE_SIZE / 2 - PLAYER_SIZE / 2,
-                    top: p.position.y * TILE_SIZE + TILE_SIZE / 2 - PLAYER_SIZE / 2,
-                    width: PLAYER_SIZE,
-                    height: PLAYER_SIZE,
-                    backgroundColor: "#" + p.id.substr(0, 6)
-                })
-                .appendTo(document.body));
-        }
-
-        function getCellColorFromWallType(tileType) {
-            return tileType === TILE_SOLID_WALL ?
-                "gray" :
-                "#ccc";
-        }
-
-        function onCellClicked(event) {
-            let cellDom = event.target;
-
-            let row = $(cellDom).data("row");
-            let column = $(cellDom).data("column");
-            let tileType = $(cellDom).data("tile-type");
-
-            let newTileType = tileType === TILE_SOLID_WALL ? 
-                TILE_EMPTY_SPACE : 
-                TILE_SOLID_WALL;
-
-            $(cellDom)
-                .data("tile-type", newTileType)
-                .css("background-color", getCellColorFromWallType(newTileType));
-
-            updateCellTileType(row, column, newTileType);
-        }
-
-        function updateCellTileType(row, column, newTileType) {
-            tileMatrix[row][column] = newTileType;
-
-            $.ajax({
-                type: "POST",
-                contentType: "application/json",
-                url: "http://localhost:5000/api/map",
-                data: JSON.stringify({
-                    tileMatrix
-                })
-            });
+            //TODO
         }
     </script>
 </head>
 
-<body>
+<body id="canvas">
     <span>Loading (make sure you've started the game server first) ...</span>
 </body>
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Server.Game;
+using System;
 
 namespace Server.Controllers
 {
@@ -28,20 +29,15 @@ namespace Server.Controllers
         [HttpGet("")]
         public IActionResult GetMap()
         {
-            return Ok(new MapResponse()
-            {
-                /* TODO: the response should contain the map tile matrix and the players on the map.
-                 * perhaps it should be fetched from the GameServer? */
-            });
+            //TODO
+            throw new NotImplementedException();
         }
 
         [HttpPost("")]
         public IActionResult UpdateMap([FromBody] MapUpdateRequest request)
         {
-            /* TODO: we should update the current map tile matrix (perhaps on the GameServer?) with the map given in the request. */
-            /* TODO: we should also (via the server) broadcast the updated map to all clients. */
-
-            return NoContent();
+            //TODO
+            throw new NotImplementedException();
         }
     }
 }

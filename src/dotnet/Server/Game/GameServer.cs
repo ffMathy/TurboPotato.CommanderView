@@ -26,29 +26,19 @@ namespace Server.Game
 
     public class GameServer : TcpServer
     {
-        private readonly Dictionary<Guid, GameServerSession> _gameServerSessionsById;
-
-        public MapTileType[][] MapTileMatrix { get; private set; }
-
         public GameServer(string address, int port) : base(address, port)
         {
-            _gameServerSessionsById = new Dictionary<Guid, GameServerSession>();
-
-            MapTileMatrix = GenerateInitialMapTileMatrix();
         }
 
         protected override TcpSession CreateSession()
         {
             var session = new GameServerSession(this);
-            _gameServerSessionsById.Add(session.Id, session);
 
             return session;
         }
 
         protected override void OnConnected(TcpSession session)
         {
-            var currentGameServerSession = _gameServerSessionsById[session.Id];
-
             //TODO: somehow send map tiles to the connected client.
 
             //TODO: somehow send the client's ID (currentGameServerSession.Id) to the client, so he knows who he is.
@@ -58,39 +48,13 @@ namespace Server.Game
 
         protected override void OnDisconnected(TcpSession session)
         {
-            _gameServerSessionsById.Remove(session.Id);
-
             //TODO: send a message to all players that the player with the ID session.Id has disconnected.
-        }
-
-        public Player[] GetPlayers()
-        {
-            return _gameServerSessionsById.Values
-                .Select(x => new Player()
-                {
-                    Id = x.Id,
-                    Position = x.PlayerPosition
-                })
-                .ToArray();
-        }
-
-        private static MapTileType[][] GenerateInitialMapTileMatrix()
-        {
-            return new[]
-            {
-                new [] { MapTileType.SolidWall, MapTileType.SolidWall, MapTileType.SolidWall, MapTileType.SolidWall },
-                new [] { MapTileType.SolidWall, MapTileType.EmptySpace, MapTileType.EmptySpace, MapTileType.SolidWall },
-                new [] { MapTileType.SolidWall, MapTileType.EmptySpace, MapTileType.EmptySpace, MapTileType.SolidWall },
-                new [] { MapTileType.SolidWall, MapTileType.SolidWall, MapTileType.SolidWall, MapTileType.SolidWall }
-            };
         }
     }
 
     public class GameServerSession : TcpSession
     {
         private readonly GameServer _server;
-
-        public PlayerPosition PlayerPosition { get; private set;  }
 
         public GameServerSession(GameServer server) : base(server)
         {
