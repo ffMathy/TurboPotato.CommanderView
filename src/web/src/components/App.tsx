@@ -1,4 +1,5 @@
 import * as React from "react";
+import { getColor } from "../color-helper";
 
 export interface AppProps {
 }
@@ -39,11 +40,13 @@ const apiUrl = "http://10.204.26.143:5000/api/map";
 
 
 
-const Player = (props: { playerId?: string, position: Position }) => {
+const Player = (props: { id?: string, position: Position }) => {
     const { position } = props;
-    const left = position.x - Math.floor(position.x);
-    const top = position.y - Math.floor(position.y);
-    return <div className="player" style={{ position: "absolute", left: left + "%", top: top + "%" }}></div>
+    const left = (position.x - Math.floor(position.x)) * 10;
+    const top = (position.y - Math.floor(position.y)) * 10;
+    const color = getColor(props.id);
+    console.log(color);
+    return <div className="player" style={{ backgroundColor: color, position: "absolute", left: left + "%", top: top + "%" }}></div>
 }
 
 export default class App extends React.Component<AppProps, AppState> {
@@ -61,7 +64,7 @@ export default class App extends React.Component<AppProps, AppState> {
                 const className = ClassNames[column];
                 const ourPlayers = players.filter(player => player.cellPosition.x === rowIndex && player.cellPosition.y === columnIndex);
                 return < td className={`column ${className}`} >
-                    {ourPlayers.map(player => <Player playerId={player.id} position={player.position} />)}
+                    {ourPlayers.map(player => <Player id={player.id} position={player.position} />)}
                 </ td>;
             })
             return <tr>{columnTds}</tr>;
@@ -70,7 +73,6 @@ export default class App extends React.Component<AppProps, AppState> {
         return <table>{matrix}</table>;
     }
 
-    filterPlayerBy
 
     componentDidMount() {
         setInterval(this.fetchData, 100);
