@@ -22,6 +22,7 @@ interface Position {
 interface Player {
     id: string;
     position: Position;
+    cellPosition: Position;
 }
 
 interface MapResult {
@@ -36,6 +37,15 @@ const ClassNames = {
 
 const apiUrl = "http://10.204.26.143:5000/api/map";
 
+
+
+const Player = (props: { playerId?: string, position: Position }) => {
+    const { position } = props;
+    const left = position.x - Math.floor(position.x);
+    const top = position.y - Math.floor(position.y);
+    return <div className="player" style={{ position: "absolute", left: left + "%", top: top + "%" }}></div>
+}
+
 export default class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
@@ -45,11 +55,14 @@ export default class App extends React.Component<AppProps, AppState> {
     render() {
 
         const rows = this.state.tileMatrix;
-        const matrix = rows.map(row => {
-
-            const columnTds = row.map(column => {
+        const players = this.state.players;
+        const matrix = rows.map((row, rowIndex) => {
+            const columnTds = row.map((column, columnIndex) => {
                 const className = ClassNames[column];
-                return < td className={`column ${className}`} />;
+                const ourPlayers = players.filter(player => player.cellPosition.x === rowIndex && player.cellPosition.y === columnIndex);
+                return < td className={`column ${className}`} >
+                    {ourPlayers.map(player => <Player playerId={player.id} position={player.position} />)}
+                </ td>;
             })
             return <tr>{columnTds}</tr>;
 
@@ -57,14 +70,19 @@ export default class App extends React.Component<AppProps, AppState> {
         return <table>{matrix}</table>;
     }
 
+    filterPlayerBy
+
     componentDidMount() {
         setInterval(this.fetchData, 100);
     }
 
     fetchData() {
         fetch(apiUrl).then(response => response.json()).then(json => json as MapResult).then(mapResult => {
+
             this.setState({
-                players: mapResult.players,
+                players: mapResult.players.map((player) => {
+                    return { ...player, cellPosition: { x: Math.floor(player.position.x), y: Math.floor(player.position.y) } }
+                }),
                 tileMatrix: mapResult.tileMatrix
             })
         });
