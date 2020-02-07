@@ -23,7 +23,7 @@
     "clean-dist": "rm -f -r -d dist",
     "lint": "tslint './src/**/*.ts*' --format stylish --force",
     "start": "npm run start-dev",
-    "start-dev": "webpack-dev-server --config=configs/webpack/dev.js",
+    "start-dev": "webpack-dev-server --port 14568 --config=configs/webpack/dev.js",
     "start-prod": "npm run build && node express.js",
     "test-coverage": "jest --watch --watchAll --coverage --verbose",
     "test": "jest --watch",
