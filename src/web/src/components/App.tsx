@@ -36,14 +36,12 @@ const ClassNames = {
     1: "Wall"
 }
 
-const apiUrl = "http://10.204.26.143:5000/api/map";
-
-
+const apiUrl = "http://10.204.26.113:5000/api/map";
 
 const Player = (props: { id?: string, position: Position }) => {
     const { position } = props;
     const left = (position.x - Math.floor(position.x)) * 10;
-    const top = (position.y - Math.floor(position.y)) * 10;
+    const top = (position.y - Math.floor(position.y)) * 100;
     const color = getColor(props.id);
     return <div className="player" style={{ backgroundColor: color, position: "absolute", left: left + "%", top: top + "%" }}></div>
 }
@@ -79,18 +77,13 @@ export default class App extends React.Component<AppProps, AppState> {
         body[rowIndex][columnIndex] = body[rowIndex][columnIndex] == TileType.Empty ? TileType.Wall : TileType.Empty;
         fetch(apiUrl, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body:
-                JSON.stringify({ tileMatrix: body })
-
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tileMatrix: body })
         });
     }
 
     componentDidMount() {
         setInterval(this.fetchData, 100);
-        // this.fetchData();
     }
 
     fetchData() {
